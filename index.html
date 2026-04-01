@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amazon Scraper · Búsqueda con Prime</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <!-- SheetJS para leer/exportar Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg:        #f0f2f5;
+      --surface:   #ffffff;
+      --surface2:  #f7f8fa;
+      --nav:       #1a223f;
+      --nav2:      #232d4e;
+      --border:    #e2e6ee;
+      --accent:    #00b4a6;
+      --accent2:   #009e91;
+      --prime:     #2563eb;
+      --text:      #1a223f;
+      --text-soft: #4b5577;
+      --muted:     #9ba3be;
+      --success:   #00b4a6;
+      --warn:      #f59e0b;
+      --error:     #ef4444;
+      --blue-card: #2563eb;
+      --teal-card: #00b4a6;
+      --yellow-card:#f59e0b;
+      --red-card:  #ef4444;
+      --radius:    12px;
+      --shadow:    0 2px 12px rgba(26,34,63,0.08);
+      --mono:      'Nunito Sans', sans-serif;
+      --sans:      'Nunito', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header { background: var(--nav); padding: 0 32px; height: 56px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.18); position: sticky; top: 0; z-index: 100; }
+    .logo { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 8px rgba(0,180,166,0.35); }
+    header h1 { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; color: #ffffff; }
+    header h1 span { color: var(--accent); }
+    .badge-prime { margin-left: auto; background: rgba(0,180,166,0.18); color: var(--accent); border: 1px solid rgba(0,180,166,0.35); border-radius: 20px; padding: 4px 14px; font-size: 0.7rem; font-family: var(--mono); font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+    .badge-offline { background: rgba(245,158,11,0.18); color: #b87800; border: 1px solid rgba(245,158,11,0.35); border-radius: 20px; padding: 4px 14px; font-size: 0.7rem; font-family: var(--mono); font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin-left: 8px; }
+
+    main { display: grid; grid-template-columns: 360px 1fr; gap: 0; flex: 1; min-height: 0; }
+
+    .panel-left { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+    .section-title { font-size: 0.68rem; font-family: var(--mono); color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+
+    textarea { width: 100%; height: 200px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--mono); font-size: 0.82rem; padding: 12px 14px; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s; line-height: 1.7; }
+    textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,180,166,0.12); }
+    textarea::placeholder { color: var(--muted); }
+
+    .counter { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); text-align: right; margin-top: 5px; }
+    .counter span { color: var(--accent); font-weight: 700; }
+
+    .divider { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.7rem; font-family: var(--mono); font-weight: 600; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .upload-zone { border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); }
+    .upload-zone:hover { border-color: var(--accent); background: rgba(0,180,166,0.04); }
+    .upload-zone.active { border-color: var(--success); background: rgba(0,180,166,0.07); }
+    .upload-zone .icon { font-size: 26px; margin-bottom: 6px; }
+    .upload-zone p { font-size: 0.8rem; color: var(--text-soft); }
+    .upload-zone p b { color: var(--text); font-weight: 700; }
+    #fileInput { display: none; }
+
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .option-item { background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 11px 12px; }
+    .option-item label { font-size: 0.7rem; color: var(--muted); display: block; margin-bottom: 6px; font-family: var(--mono); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .option-item select { width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 7px; color: var(--text); font-family: var(--mono); font-size: 0.82rem; padding: 6px 9px; transition: border-color 0.2s; }
+    .option-item select:focus { outline: none; border-color: var(--accent); }
+
+    /* Filtros inline */
+    .filters-row { display: flex; flex-direction: column; gap: 8px; }
+    .filter-toggle { display: flex; align-items: center; gap: 10px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 10px 12px; cursor: pointer; transition: border-color 0.2s; }
+    .filter-toggle:hover { border-color: var(--accent); }
+    .filter-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+    .filter-toggle .ft-info { flex: 1; }
+    .filter-toggle .ft-label { font-size: 0.8rem; font-weight: 700; color: var(--text); }
+    .filter-toggle .ft-sub { font-size: 0.68rem; font-family: var(--mono); color: var(--muted); margin-top: 2px; }
+    .filter-toggle .ft-badge { font-size: 0.62rem; font-family: var(--mono); font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+    .ft-badge-prime { background: rgba(37,99,235,0.12); color: #1d4ed8; border: 1px solid rgba(37,99,235,0.2); }
+    .ft-badge-star  { background: rgba(245,158,11,0.12); color: #b87800; border: 1px solid rgba(245,158,11,0.25); }
+
+    .info-box { background: rgba(0,180,166,0.07); border: 1px solid rgba(0,180,166,0.2); border-radius: var(--radius); padding: 10px 12px; font-size: 0.73rem; color: var(--text-soft); font-family: var(--mono); line-height: 1.6; }
+    .info-box strong { color: var(--accent); }
+
+    .btn-start { background: var(--nav); color: #fff; border: none; border-radius: var(--radius); padding: 14px; font-family: var(--sans); font-weight: 800; font-size: 0.95rem; cursor: pointer; width: 100%; transition: all 0.2s; letter-spacing: 0.01em; box-shadow: 0 2px 8px rgba(26,34,63,0.18); }
+    .btn-start:hover { background: var(--nav2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,34,63,0.22); }
+    .btn-start:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .panel-right { padding: 24px 28px; display: flex; flex-direction: column; gap: 18px; overflow: hidden; }
+
+    .status-bar { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 18px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow); }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
+    .status-dot.running { background: var(--accent); animation: pulse 1.2s infinite; }
+    .status-dot.done    { background: var(--success); }
+    .status-dot.error   { background: var(--error); }
+    @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,180,166,0.4); } 50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(0,180,166,0); } }
+    .status-text { flex: 1; }
+    .status-text .label { font-size: 0.84rem; font-weight: 700; color: var(--text); }
+    .status-text .sub { font-size: 0.7rem; font-family: var(--mono); color: var(--muted); margin-top: 2px; }
+    .progress-track { flex: 1; height: 7px; background: var(--surface2); border-radius: 99px; overflow: hidden; border: 1px solid var(--border); }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--prime)); border-radius: 99px; width: 0%; transition: width 0.4s ease; }
+    .progress-pct { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); font-weight: 700; min-width: 42px; text-align: right; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .stat-card { border-radius: var(--radius); padding: 16px 18px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow); }
+    .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: rgba(255,255,255,0.18); }
+    .stat-info { flex: 1; }
+    .stat-card .num { font-size: 1.55rem; font-weight: 800; line-height: 1; color: #fff; }
+    .stat-card .lbl { font-size: 0.7rem; font-family: var(--mono); color: rgba(255,255,255,0.75); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+    .stat-card.s-total { background: var(--blue-card); }
+    .stat-card.s-ok    { background: var(--teal-card); }
+    .stat-card.s-warn  { background: var(--yellow-card); }
+    .stat-card.s-error { background: var(--red-card); }
+
+    .table-wrap { flex: 1; overflow-y: auto; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    thead th { background: var(--nav); padding: 12px 14px; text-align: left; font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(255,255,255,0.65); border-bottom: 2px solid var(--nav2); position: sticky; top: 0; font-weight: 700; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    tbody tr:hover { background: #f0fafa; }
+    tbody tr:last-child { border-bottom: none; }
+    td { padding: 10px 14px; vertical-align: middle; color: var(--text); }
+    td:first-child { color: var(--muted); font-family: var(--mono); font-size: 0.72rem; font-weight: 700; }
+    td.td-producto { font-weight: 700; max-width: 200px; }
+    td.td-url { max-width: 300px; }
+    td.td-url a { color: var(--prime); text-decoration: none; font-family: var(--mono); font-size: 0.72rem; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+    td.td-url a:hover { text-decoration: underline; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 99px; font-family: var(--mono); font-size: 0.64rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+    .badge-ok   { background: rgba(0,180,166,0.12); color: #008f85; border: 1px solid rgba(0,180,166,0.25); }
+    .badge-warn { background: rgba(245,158,11,0.12); color: #b87800; border: 1px solid rgba(245,158,11,0.25); }
+    .badge-err  { background: rgba(239,68,68,0.12);  color: #c9242a; border: 1px solid rgba(239,68,68,0.25); }
+    .badge-info { background: rgba(37,99,235,0.1);   color: #1d4ed8; border: 1px solid rgba(37,99,235,0.2); }
+    td.td-obs { font-size: 0.72rem; color: var(--text-soft); max-width: 220px; }
+    td.td-fecha { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); white-space: nowrap; font-weight: 600; }
+
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: var(--muted); gap: 12px; }
+    .empty-state .icon { font-size: 36px; opacity: 0.35; }
+    .empty-state p { font-size: 0.82rem; color: var(--muted); font-weight: 600; }
+
+    .actions-row { display: flex; gap: 10px; align-items: center; }
+    .btn-export { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 10px 20px; font-family: var(--sans); font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 7px; box-shadow: 0 2px 8px rgba(0,180,166,0.25); }
+    .btn-export:hover { background: var(--accent2); transform: translateY(-1px); }
+    .btn-export:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-clear { background: transparent; color: var(--text-soft); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 10px 16px; font-family: var(--sans); font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-clear:hover { color: var(--text); border-color: var(--muted); background: var(--surface2); }
+
+    .log-panel { background: var(--nav); border: none; border-radius: var(--radius); padding: 12px 14px; height: 110px; overflow-y: auto; font-family: var(--mono); font-size: 0.71rem; color: rgba(255,255,255,0.45); line-height: 1.8; box-shadow: var(--shadow); }
+    .log-panel .log-ok   { color: #4ade80; }
+    .log-panel .log-warn { color: #fbbf24; }
+    .log-panel .log-err  { color: #f87171; }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+      .panel-left { border-right: none; border-bottom: 1.5px solid var(--border); max-height: 60vh; }
+      .stats-row { grid-template-columns: repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🔍</div>
+  <h1>Amazon <span>Scraper</span></h1>
+  <div class="badge-prime">✦ Prime Filter</div>
+  <div class="badge-offline">⚡ Sin servidor</div>
+</header>
+
+<main>
+  <aside class="panel-left">
+    <div>
+      <div class="section-title">Lista de productos</div>
+      <textarea id="txtProductos" placeholder="Escribe un producto por línea, por ejemplo:&#10;Silla ergonómica para oficina&#10;Escritorio de altura ajustable&#10;Monitor 4K 27 pulgadas&#10;Teclado mecánico inalámbrico"></textarea>
+      <div class="counter">Productos detectados: <span id="cntProductos">0</span></div>
+    </div>
+
+    <div class="divider">o carga un Excel</div>
+
+    <div>
+      <div class="section-title">Importar desde archivo</div>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="icon">📂</div>
+        <p><b>Haz clic para seleccionar</b> o arrastra aquí</p>
+        <p style="margin-top:4px;">Archivos .xlsx o .xls soportados</p>
+      </div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls" />
+    </div>
+
+    <div>
+      <div class="section-title">Filtros de búsqueda</div>
+      <div class="filters-row">
+        <label class="filter-toggle">
+          <input type="checkbox" id="chkPrime" checked />
+          <div class="ft-info">
+            <div class="ft-label">🛡 Filtro Prime</div>
+            <div class="ft-sub">Solo productos elegibles para Prime</div>
+          </div>
+          <span class="ft-badge ft-badge-prime">Prime</span>
+        </label>
+        <label class="filter-toggle">
+          <input type="checkbox" id="chkStars" checked />
+          <div class="ft-info">
+            <div class="ft-label">⭐ 4 Estrellas o más</div>
+            <div class="ft-sub">Filtra por calificación mínima</div>
+          </div>
+          <span class="ft-badge ft-badge-star">★★★★</span>
+        </label>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Amazon destino</div>
+      <div class="option-item">
+        <label>Región de Amazon</label>
+        <select id="selAmazon">
+          <option value="com">amazon.com (US)</option>
+          <option value="com.mx">amazon.com.mx (México)</option>
+          <option value="es">amazon.es (España)</option>
+          <option value="com.br">amazon.com.br (Brasil)</option>
+          <option value="co.uk">amazon.co.uk (Reino Unido)</option>
+          <option value="de">amazon.de (Alemania)</option>
+          <option value="fr">amazon.fr (Francia)</option>
+          <option value="it">amazon.it (Italia)</option>
+          <option value="ca">amazon.ca (Canadá)</option>
+          <option value="com.au">amazon.com.au (Australia)</option>
+          <option value="co.jp">amazon.co.jp (Japón)</option>
+          <option value="in">amazon.in (India)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>ℹ️ Modo sin servidor:</strong> Esta versión genera los links de Amazon directamente en tu navegador. No requiere Python, Flask ni instalación. Haz clic en cada URL para abrir la búsqueda en Amazon.
+    </div>
+
+    <button class="btn-start" id="btnStart" onclick="iniciarBusqueda()">🚀 Generar Links</button>
+  </aside>
+
+  <section class="panel-right">
+    <div class="status-bar">
+      <div class="status-dot" id="statusDot"></div>
+      <div class="status-text">
+        <div class="label" id="statusLabel">Esperando productos…</div>
+        <div class="sub" id="statusSub">Ingresa productos y presiona Generar Links</div>
+      </div>
+      <div class="progress-track" style="max-width:200px;">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-pct" id="progressPct">0%</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card s-total">
+        <div class="stat-icon">🛒</div>
+        <div class="stat-info"><div class="num" id="stTotal">0</div><div class="lbl">Total</div></div>
+      </div>
+      <div class="stat-card s-ok">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info"><div class="num" id="stOk">0</div><div class="lbl">Prime + ★★★★</div></div>
+      </div>
+      <div class="stat-card s-warn">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-info"><div class="num" id="stWarn">0</div><div class="lbl">Sin estrellas</div></div>
+      </div>
+      <div class="stat-card s-error">
+        <div class="stat-icon">🔗</div>
+        <div class="stat-info"><div class="num" id="stErr">0</div><div class="lbl">Sin filtros</div></div>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="btn-export" id="btnExport" disabled onclick="exportarExcel()">⬇ Exportar Excel</button>
+      <button class="btn-clear" onclick="limpiarResultados()">Limpiar</button>
+      <span style="margin-left:auto;font-family:var(--mono);font-size:0.72rem;color:var(--muted);font-weight:700;" id="tiempoInfo"></span>
+    </div>
+
+    <div class="table-wrap" id="tableWrap">
+      <div class="empty-state" id="emptyState">
+        <div class="icon">📋</div>
+        <p>Los links de Amazon aparecerán aquí</p>
+      </div>
+      <table id="resultTable" style="display:none">
+        <thead>
+          <tr>
+            <th>#</th><th>Producto</th><th>URL Amazon</th><th>Filtros</th><th>Observación</th><th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+
+    <div>
+      <div class="section-title">Registro de actividad</div>
+      <div class="log-panel" id="logPanel">
+        <span>— Listo para iniciar —</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // ──────────────────────────────────────────────
+  // Configuración de Amazon por región
+  // ──────────────────────────────────────────────
+  const AMAZON_PRIME_NODE = {
+    'com':    'p_85:2470955011',
+    'com.mx': 'p_85:2693027011',
+    'es':     'p_85:831817031',
+    'com.br': 'p_85:17878830011',
+    'co.uk':  'p_85:531109031',
+    'de':     'p_85:419117031',
+    'fr':     'p_85:677798031',
+    'it':     'p_85:599367031',
+    'ca':     'p_85:13742691011',
+    'com.au': 'p_85:48631609031',
+    'co.jp':  'p_85:2114981051',
+    'in':     'p_85:1571274031',
+  };
+
+  const AMAZON_STARS_NODE = {
+    'com':    'p_72:1248879011',
+    'com.mx': 'p_72:1241989011',
+    'es':     'p_72:831817031',
+    'com.br': 'p_72:5312720011',
+    'co.uk':  'p_72:1066443031',
+    'de':     'p_72:663823031',
+    'fr':     'p_72:677799031',
+    'it':     'p_72:524136031',
+    'ca':     'p_72:13727921011',
+    'com.au': 'p_72:48631610031',
+    'co.jp':  'p_72:2111901051',
+    'in':     'p_72:1318405031',
+  };
+
+  let resultados = [];
+  let inicioTiempo = null;
+
+  // ──────────────────────────────────────────────
+  // Contador de productos
+  // ──────────────────────────────────────────────
+  document.getElementById('txtProductos').addEventListener('input', function () {
+    const lineas = this.value.split('\n').filter(l => l.trim()).length;
+    document.getElementById('cntProductos').textContent = lineas;
+  });
+
+  // ──────────────────────────────────────────────
+  // Drag & drop + file input
+  // ──────────────────────────────────────────────
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--accent)'; });
+  zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.style.borderColor = '';
+    const file = e.dataTransfer.files[0];
+    if (file) cargarExcel(file);
+  });
+  document.getElementById('fileInput').addEventListener('change', function () {
+    if (this.files[0]) cargarExcel(this.files[0]);
+  });
+
+  // ──────────────────────────────────────────────
+  // Leer Excel con SheetJS (100% en el navegador)
+  // ──────────────────────────────────────────────
+  function cargarExcel(file) {
+    if (!file.name.match(/\.(xlsx|xls)$/i)) {
+      alert('El archivo debe ser .xlsx o .xls');
+      return;
+    }
+    zone.querySelector('p').textContent = '⏳ Leyendo archivo…';
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'binary' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+        // Buscar primera columna con texto
+        let colIdx = -1;
+        let colNombre = '';
+        if (data.length > 0) {
+          for (let c = 0; c < data[0].length; c++) {
+            const vals = data.slice(1).map(row => String(row[c] || '').trim()).filter(Boolean);
+            if (vals.length > 0) {
+              colIdx = c;
+              colNombre = String(data[0][c] || `Columna ${c + 1}`);
+              break;
+            }
+          }
+        }
+
+        if (colIdx === -1) {
+          alert('No se encontró una columna de texto en el Excel.');
+          zone.querySelector('p').textContent = 'Haz clic para seleccionar o arrastra aquí';
+          return;
+        }
+
+        const startRow = (data[0][colIdx] && isNaN(data[0][colIdx])) ? 1 : 0;
+        const productos = data.slice(startRow)
+          .map(row => String(row[colIdx] || '').trim())
+          .filter(Boolean);
+
+        document.getElementById('txtProductos').value = productos.join('\n');
+        document.getElementById('cntProductos').textContent = productos.length;
+        zone.querySelector('p').textContent = `✅ ${productos.length} productos importados desde "${colNombre}"`;
+        zone.classList.add('active');
+        appendLog(`📂 Excel cargado: ${productos.length} productos desde columna "${colNombre}"`, 'ok');
+      } catch(err) {
+        alert('Error al leer el archivo: ' + err.message);
+        zone.querySelector('p').textContent = 'Haz clic para seleccionar o arrastra aquí';
+      }
+    };
+    reader.readAsBinaryString(file);
+  }
+
+  // ──────────────────────────────────────────────
+  // Construir URL de Amazon con filtros
+  // ──────────────────────────────────────────────
+  function construirURL(termino, region, usarPrime, usarEstrellas) {
+    const base = `https://www.amazon.${region}/s`;
+    const params = new URLSearchParams({ k: termino, s: 'relevanceblender' });
+    const nodos = [];
+    if (usarPrime && AMAZON_PRIME_NODE[region]) nodos.push(AMAZON_PRIME_NODE[region]);
+    if (usarEstrellas && AMAZON_STARS_NODE[region]) nodos.push(AMAZON_STARS_NODE[region]);
+    if (nodos.length) params.set('rh', nodos.join(','));
+    return `${base}?${params.toString()}`;
+  }
+
+  function obtenerDescripcionFiltros(usarPrime, usarEstrellas) {
+    if (usarPrime && usarEstrellas) return { estado: 'exitoso', obs: 'Filtros Prime + 4 estrellas aplicados.', badge: 'badge-ok', label: 'PRIME + ★★★★' };
+    if (usarPrime)    return { estado: 'sin_estrellas', obs: 'Solo filtro Prime aplicado.', badge: 'badge-warn', label: 'SOLO PRIME' };
+    if (usarEstrellas) return { estado: 'sin_prime', obs: 'Solo filtro 4 estrellas aplicado.', badge: 'badge-warn', label: 'SOLO ★★★★' };
+    return { estado: 'sin_filtros', obs: 'Sin filtros. Búsqueda general.', badge: 'badge-err', label: 'SIN FILTROS' };
+  }
+
+  // ──────────────────────────────────────────────
+  // Iniciar generación de links (instantáneo)
+  // ──────────────────────────────────────────────
+  async function iniciarBusqueda() {
+    const texto = document.getElementById('txtProductos').value;
+    const productos = texto.split('\n').filter(l => l.trim());
+    if (!productos.length) { alert('Ingresa al menos un producto para buscar.'); return; }
+
+    const region     = document.getElementById('selAmazon').value;
+    const usarPrime  = document.getElementById('chkPrime').checked;
+    const usarEst    = document.getElementById('chkStars').checked;
+
+    resultados = [];
+    document.getElementById('resultBody').innerHTML = '';
+    document.getElementById('resultTable').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'flex';
+    document.getElementById('logPanel').innerHTML = '';
+    document.getElementById('btnExport').disabled = true;
+    document.getElementById('btnStart').disabled = true;
+    inicioTiempo = Date.now();
+
+    setStatus('running', 'Generando links…', `${productos.length} productos`);
+    appendLog(`🚀 Generando ${productos.length} links para amazon.${region}`, 'ok');
+
+    const info = obtenerDescripcionFiltros(usarPrime, usarEst);
+    const now = new Date().toLocaleString('es', { hour12: false }).replace(',', '');
+
+    // Procesamiento con pequeño delay visual para mostrar progreso
+    for (let i = 0; i < productos.length; i++) {
+      const producto = productos[i].trim();
+      if (!producto) continue;
+
+      const url = construirURL(producto, region, usarPrime, usarEst);
+      const r = {
+        producto_buscado: producto,
+        url_resultado:    url,
+        estado:           info.estado,
+        observacion:      info.obs,
+        fecha_consulta:   now,
+        badgeClass:       info.badge,
+        badgeLabel:       info.label,
+      };
+      resultados.push(r);
+      agregarFila(r, i + 1);
+
+      // Actualizar progreso cada 5 items o al final
+      if (i % 5 === 0 || i === productos.length - 1) {
+        const pct = Math.round(((i + 1) / productos.length) * 100);
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressPct').textContent = pct + '%';
+        setStatus('running', 'Generando links…', `${i + 1} de ${productos.length}`);
+        // Pequeño yield para que el navegador renderice
+        if (productos.length > 50) await new Promise(r => setTimeout(r, 0));
+      }
+    }
+
+    actualizarStats(resultados);
+    document.getElementById('btnExport').disabled = false;
+    document.getElementById('btnStart').disabled = false;
+
+    const elapsed = ((Date.now() - inicioTiempo) / 1000).toFixed(2);
+    document.getElementById('tiempoInfo').textContent = `⏱ ${elapsed}s`;
+    setStatus('done', `✅ ${resultados.length} links generados`, `amazon.${region} · ${elapsed}s`);
+    appendLog(`✅ Listo — ${resultados.length} links generados en ${elapsed}s`, 'ok');
+    appendLog(`ℹ️ Haz clic en cada URL para abrir en Amazon`, '');
+  }
+
+  // ──────────────────────────────────────────────
+  // Agregar fila a la tabla
+  // ──────────────────────────────────────────────
+  function agregarFila(r, idx) {
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resultTable').style.display = 'table';
+    const tbody = document.getElementById('resultBody');
+    const tr = document.createElement('tr');
+    const urlCell = r.url_resultado
+      ? `<a href="${r.url_resultado}" target="_blank" title="${r.url_resultado}">${r.url_resultado}</a>`
+      : '<span style="color:var(--muted)">—</span>';
+    tr.innerHTML = `
+      <td>${idx}</td>
+      <td class="td-producto">${esc(r.producto_buscado)}</td>
+      <td class="td-url">${urlCell}</td>
+      <td><span class="badge ${r.badgeClass}">${r.badgeLabel}</span></td>
+      <td class="td-obs">${esc(r.observacion)}</td>
+      <td class="td-fecha">${r.fecha_consulta}</td>
+    `;
+    tbody.appendChild(tr);
+    const wrap = document.getElementById('tableWrap');
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  // ──────────────────────────────────────────────
+  // Estadísticas
+  // ──────────────────────────────────────────────
+  function actualizarStats(results) {
+    document.getElementById('stTotal').textContent = results.length;
+    document.getElementById('stOk').textContent    = results.filter(r => r.estado === 'exitoso').length;
+    document.getElementById('stWarn').textContent  = results.filter(r => ['sin_prime','sin_estrellas'].includes(r.estado)).length;
+    document.getElementById('stErr').textContent   = results.filter(r => r.estado === 'sin_filtros').length;
+  }
+
+  // ──────────────────────────────────────────────
+  // Exportar Excel con SheetJS (100% en el navegador)
+  // ──────────────────────────────────────────────
+  function exportarExcel() {
+    if (!resultados.length) return;
+
+    const datos = resultados.map((r, i) => ({
+      '#': i + 1,
+      'Producto Buscado': r.producto_buscado,
+      'URL Amazon':       r.url_resultado,
+      'Filtros':          r.badgeLabel,
+      'Observación':      r.observacion,
+      'Fecha Consulta':   r.fecha_consulta,
+    }));
+
+    const wb = XLSX.utils.book_new();
+
+    // Hoja principal
+    const ws = XLSX.utils.json_to_sheet(datos);
+    ws['!cols'] = [
+      { wch: 5 },
+      { wch: 35 },
+      { wch: 80 },
+      { wch: 14 },
+      { wch: 40 },
+      { wch: 22 },
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, 'Resultados Amazon');
+
+    // Hoja resumen
+    const total    = resultados.length;
+    const exitosos = resultados.filter(r => r.estado === 'exitoso').length;
+    const parciales = resultados.filter(r => ['sin_prime','sin_estrellas'].includes(r.estado)).length;
+    const sinFiltros = resultados.filter(r => r.estado === 'sin_filtros').length;
+
+    const resumen = [
+      ['Resumen de Búsqueda', ''],
+      ['', ''],
+      ['Total productos', total],
+      ['Prime + 4 estrellas', exitosos],
+      ['Filtro parcial', parciales],
+      ['Sin filtros', sinFiltros],
+      ['Fecha exportación', new Date().toLocaleString('es')],
+    ];
+    const ws2 = XLSX.utils.aoa_to_sheet(resumen);
+    ws2['!cols'] = [{ wch: 22 }, { wch: 28 }];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Resumen');
+
+    const fecha = new Date().toISOString().slice(0,19).replace(/[T:]/g,'-').replace(/-/g,'').slice(0,15);
+    XLSX.writeFile(wb, `amazon_resultados_${fecha}.xlsx`);
+    appendLog('📥 Excel exportado exitosamente', 'ok');
+  }
+
+  // ──────────────────────────────────────────────
+  // Limpiar
+  // ──────────────────────────────────────────────
+  function limpiarResultados() {
+    resultados = [];
+    document.getElementById('resultBody').innerHTML = '';
+    document.getElementById('resultTable').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'flex';
+    document.getElementById('logPanel').innerHTML = '<span>— Listo para iniciar —</span>';
+    document.getElementById('btnExport').disabled = true;
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressPct').textContent = '0%';
+    document.getElementById('tiempoInfo').textContent = '';
+    ['stTotal','stOk','stWarn','stErr'].forEach(id => document.getElementById(id).textContent = '0');
+    setStatus('idle', 'Esperando productos…', 'Ingresa productos y presiona Generar Links');
+  }
+
+  // ──────────────────────────────────────────────
+  // Utilidades
+  // ──────────────────────────────────────────────
+  function setStatus(type, label, sub) {
+    const dot = document.getElementById('statusDot');
+    dot.className = 'status-dot ' + (type === 'idle' ? '' : type);
+    document.getElementById('statusLabel').textContent = label;
+    document.getElementById('statusSub').textContent = sub;
+  }
+
+  function appendLog(msg, tipo = '') {
+    const panel = document.getElementById('logPanel');
+    const span = document.createElement('span');
+    span.className = tipo ? `log-${tipo}` : '';
+    span.textContent = msg;
+    panel.appendChild(span);
+    panel.appendChild(document.createElement('br'));
+    panel.scrollTop = panel.scrollHeight;
+  }
+
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+</body>
+</html>
