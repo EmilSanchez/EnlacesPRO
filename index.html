@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Carlito:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
-    /* Carlito es el sustituto de Calibri en Google Fonts — métricas idénticas */
     :root {
       --bg:         #f4f6f9;
       --surface:    #ffffff;
@@ -39,7 +38,6 @@
       flex-direction: column;
     }
 
-    /* ── HEADER ── */
     header {
       background: var(--navy);
       height: 44px;
@@ -57,239 +55,63 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 13px;
     }
-    header h1 {
-      color: #fff;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
+    header h1 { color: #fff; font-size: 14px; font-weight: 700; letter-spacing: 0.02em; }
     header h1 span { color: #93b4ff; }
-    .hdr-tag {
-      margin-left: auto;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.45);
-    }
-    .hdr-translate {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 3px 10px;
-      border-radius: 20px;
-      background: rgba(26,86,219,0.25);
-      color: #93b4ff;
-      border: 1px solid rgba(26,86,219,0.4);
-    }
+    .hdr-tag { margin-left: auto; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+    .hdr-translate { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; background: rgba(26,86,219,0.25); color: #93b4ff; border: 1px solid rgba(26,86,219,0.4); }
 
-    /* ── LAYOUT ── */
-    main {
-      display: grid;
-      grid-template-columns: 300px 1fr;
-      flex: 1;
-      overflow: hidden;
-      gap: 0;
-    }
+    main { display: grid; grid-template-columns: 300px 1fr; flex: 1; overflow: hidden; gap: 0; }
 
-    /* ── PANEL IZQUIERDO ── */
-    .left {
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 14px 14px;
-      overflow: hidden;
-    }
+    .left { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; padding: 14px 14px; overflow: hidden; }
+    .lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
 
-    .lbl {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    textarea {
-      width: 100%;
-      flex: 1;
-      min-height: 0;
-      background: #f7f9fc;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text);
-      font-family: var(--font);
-      font-size: 12.5px;
-      padding: 8px 10px;
-      resize: none;
-      line-height: 1.65;
-      transition: border-color 0.15s;
-    }
+    textarea { width: 100%; flex: 1; min-height: 0; background: #f7f9fc; border: 1.5px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--font); font-size: 12.5px; padding: 8px 10px; resize: none; line-height: 1.65; transition: border-color 0.15s; }
     textarea:focus { outline: none; border-color: var(--accent); }
     textarea::placeholder { color: var(--muted); }
-
-    .textarea-wrap {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 0;
-    }
-
-    .counter {
-      font-size: 10px;
-      color: var(--muted);
-      text-align: right;
-      margin-top: 3px;
-      font-weight: 600;
-    }
+    .textarea-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .counter { font-size: 10px; color: var(--muted); text-align: right; margin-top: 3px; font-weight: 600; }
     .counter b { color: var(--accent); }
 
-    /* Upload zone */
-    .upload-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #f7f9fc;
-      border: 1.5px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 7px 10px;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      font-size: 11.5px;
-      color: var(--text-soft);
-      font-weight: 600;
-    }
+    .upload-row { display: flex; align-items: center; gap: 8px; background: #f7f9fc; border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 7px 10px; cursor: pointer; transition: border-color 0.15s, background 0.15s; font-size: 11.5px; color: var(--text-soft); font-weight: 600; }
     .upload-row:hover { border-color: var(--accent); background: #eef3ff; color: var(--accent); }
     .upload-row.loaded { border-color: var(--success); background: #f0fdf4; color: var(--success); }
     #fileInput { display: none; }
 
-    /* Controles grid */
-    .controls {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 7px;
-    }
-    .ctrl {
-      background: #f7f9fc;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 7px 9px;
-    }
-    .ctrl label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-      display: block;
-      margin-bottom: 5px;
-    }
-    .ctrl select {
-      width: 100%;
-      background: var(--surface);
-      border: 1.5px solid var(--border);
-      border-radius: 5px;
-      color: var(--text);
-      font-family: var(--font);
-      font-size: 12px;
-      padding: 4px 7px;
-    }
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .ctrl { background: #f7f9fc; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 7px 9px; }
+    .ctrl label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 5px; }
+    .ctrl select { width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 5px; color: var(--text); font-family: var(--font); font-size: 12px; padding: 4px 7px; }
     .ctrl select:focus { outline: none; border-color: var(--accent); }
 
-    /* Checkboxes */
     .checks { display: flex; flex-direction: column; gap: 6px; }
-    .chk-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 9px;
-      background: #f7f9fc;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: border-color 0.15s;
-    }
+    .chk-row { display: flex; align-items: center; gap: 8px; padding: 6px 9px; background: #f7f9fc; border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: border-color 0.15s; }
     .chk-row:hover { border-color: var(--accent); }
     .chk-row input { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
     .chk-text { font-size: 12px; font-weight: 600; color: var(--text); flex: 1; }
     .chk-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
-    .chk-badge {
-      font-size: 9px; font-weight: 700; letter-spacing: 0.05em;
-      padding: 2px 7px; border-radius: 20px;
-    }
+    .chk-badge { font-size: 9px; font-weight: 700; letter-spacing: 0.05em; padding: 2px 7px; border-radius: 20px; }
     .b-prime { background: rgba(26,86,219,0.1); color: #1648c4; border: 1px solid rgba(26,86,219,0.2); }
     .b-star  { background: rgba(180,83,9,0.1); color: #b45309; border: 1px solid rgba(180,83,9,0.2); }
 
-    /* Botón principal */
-    .btn-start {
-      background: var(--navy);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      padding: 10px;
-      font-family: var(--font);
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.15s, transform 0.1s;
-      letter-spacing: 0.02em;
-    }
+    .btn-start { background: var(--navy); color: #fff; border: none; border-radius: var(--radius); padding: 10px; font-family: var(--font); font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; transition: background 0.15s, transform 0.1s; letter-spacing: 0.02em; }
     .btn-start:hover { background: var(--navy3); }
     .btn-start:active { transform: scale(0.99); }
     .btn-start:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
 
-    /* Indicador de traducción */
-    .translate-indicator {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 10.5px;
-      color: var(--muted);
-      font-weight: 600;
-      padding: 5px 9px;
-      background: #f7f9fc;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
-    .translate-indicator .dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--muted);
-      transition: background 0.3s;
-    }
+    .translate-indicator { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--muted); font-weight: 600; padding: 5px 9px; background: #f7f9fc; border: 1px solid var(--border); border-radius: var(--radius); }
+    .translate-indicator .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background 0.3s; }
     .translate-indicator .dot.active { background: var(--accent); animation: blink 1s infinite; }
     .translate-indicator .dot.done { background: var(--success); animation: none; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* ── PANEL DERECHO ── */
-    .right {
-      display: flex;
-      flex-direction: column;
-      padding: 14px 18px;
-      gap: 10px;
-      overflow: hidden;
-    }
+    /* CORS warning box */
+    .cors-warn { display:none; background: #fff7ed; border: 1.5px solid #f97316; border-radius: var(--radius); padding: 8px 10px; font-size: 11px; color: #9a3412; line-height: 1.5; }
+    .cors-warn b { display: block; margin-bottom: 3px; }
 
-    /* Status bar */
-    .status-bar {
-      background: var(--surface);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 9px 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-    .s-dot {
-      width: 9px; height: 9px; border-radius: 50%;
-      background: var(--muted); flex-shrink: 0;
-      transition: background 0.3s;
-    }
+    .right { display: flex; flex-direction: column; padding: 14px 18px; gap: 10px; overflow: hidden; }
+
+    .status-bar { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 9px 14px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .s-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
     .s-dot.running { background: var(--accent); animation: blink 1s infinite; }
     .s-dot.done    { background: var(--success); animation: none; }
     .s-dot.error   { background: var(--error); }
@@ -299,22 +121,8 @@
     .prog-fill  { height: 100%; background: linear-gradient(90deg, var(--accent), var(--navy3)); width: 0%; border-radius: 99px; transition: width 0.3s; }
     .prog-pct   { font-size: 11px; font-weight: 700; color: var(--accent); min-width: 36px; text-align: right; font-family: var(--font); }
 
-    /* Stats */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      flex-shrink: 0;
-    }
-    .stat {
-      background: var(--surface);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; flex-shrink: 0; }
+    .stat { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
     .stat .ico { font-size: 18px; }
     .stat .num { font-size: 22px; font-weight: 700; color: var(--navy); line-height: 1; }
     .stat .lbl-s { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 700; margin-top: 2px; }
@@ -323,64 +131,17 @@
     .stat.s-warn  { border-top: 3px solid var(--warn); }
     .stat.s-err   { border-top: 3px solid var(--error); }
 
-    /* Actions */
-    .actions-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-shrink: 0;
-    }
-    .btn-exp {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      padding: 7px 16px;
-      font-family: var(--font);
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
+    .actions-row { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    .btn-exp { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 7px 16px; font-family: var(--font); font-size: 12px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
     .btn-exp:hover { background: var(--accent-h); }
     .btn-exp:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-clr {
-      background: transparent;
-      color: var(--text-soft);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 7px 14px;
-      font-family: var(--font);
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
+    .btn-clr { background: transparent; color: var(--text-soft); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 7px 14px; font-family: var(--font); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
     .btn-clr:hover { border-color: var(--muted); background: var(--gray-card); }
     .timer-info { margin-left: auto; font-size: 10.5px; color: var(--muted); font-weight: 700; }
 
-    /* Table */
-    .table-wrap {
-      flex: 1;
-      overflow-y: auto;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--surface);
-      min-height: 0;
-    }
+    .table-wrap { flex: 1; overflow-y: auto; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); min-height: 0; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    thead th {
-      background: var(--navy);
-      color: rgba(255,255,255,0.65);
-      padding: 8px 12px;
-      text-align: left;
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      position: sticky; top: 0;
-      border-bottom: 2px solid var(--navy3);
-    }
+    thead th { background: var(--navy); color: rgba(255,255,255,0.65); padding: 8px 12px; text-align: left; font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; position: sticky; top: 0; border-bottom: 2px solid var(--navy3); }
     tbody tr { border-bottom: 1px solid #f0f2f7; transition: background 0.1s; }
     tbody tr:hover { background: #f5f7fd; }
     tbody tr:last-child { border-bottom: none; }
@@ -389,50 +150,19 @@
     .td-prod { font-weight: 700; max-width: 160px; }
     .td-en { font-size: 11px; color: var(--text-soft); max-width: 160px; }
     .td-url { max-width: 260px; }
-    .td-url a {
-      color: var(--accent);
-      text-decoration: none;
-      font-size: 11px;
-      font-weight: 600;
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+    .td-url a { color: var(--accent); text-decoration: none; font-size: 11px; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .td-url a:hover { text-decoration: underline; }
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 99px;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
     .b-ok   { background: rgba(21,128,61,0.1); color: #15803d; border: 1px solid rgba(21,128,61,0.2); }
     .b-warn { background: rgba(180,83,9,0.1); color: #b45309; border: 1px solid rgba(180,83,9,0.2); }
     .b-err  { background: rgba(185,28,28,0.1); color: #b91c1c; border: 1px solid rgba(185,28,28,0.2); }
-    .b-info { background: rgba(26,86,219,0.1); color: #1648c4; border: 1px solid rgba(26,86,219,0.2); }
     .td-trans { font-size: 10px; color: var(--muted); font-weight: 600; }
 
-    .empty-state {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 40px 20px; color: var(--muted); gap: 8px; height: 100%;
-    }
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; color: var(--muted); gap: 8px; height: 100%; }
     .empty-state .ico { font-size: 28px; opacity: 0.3; }
     .empty-state p { font-size: 12px; font-weight: 600; }
 
-    /* Log strip al fondo */
-    .log-strip {
-      background: var(--navy);
-      border-radius: var(--radius);
-      padding: 6px 12px;
-      height: 38px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      flex-shrink: 0;
-    }
+    .log-strip { background: var(--navy); border-radius: var(--radius); padding: 6px 12px; height: 38px; overflow: hidden; display: flex; align-items: center; flex-shrink: 0; }
     .log-strip span { font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 600; }
     .log-strip .log-ok   { color: #86efac; }
     .log-strip .log-warn { color: #fcd34d; }
@@ -449,15 +179,14 @@
   <div class="logo-box">🔍</div>
   <h1>Amazon <span>Scraper</span></h1>
   <div class="hdr-translate">🌐 Auto-translate ES→EN</div>
-  <div class="hdr-tag">Centris · v5</div>
+  <div class="hdr-tag">Centris · v6</div>
 </header>
 
 <main>
-  <!-- ── PANEL IZQUIERDO ── -->
   <aside class="left">
     <div class="textarea-wrap">
       <div class="lbl">Productos (uno por línea)</div>
-      <textarea id="txtProductos" placeholder="Silla ergonómica&#10;Escritorio ajustable&#10;Monitor 4K&#10;Ergonomic chair&#10;Wireless keyboard"></textarea>
+      <textarea id="txtProductos" placeholder="Silla ergonómica&#10;Escritorio ajustable&#10;Monitor 4K&#10;Wireless keyboard"></textarea>
       <div class="counter">Detectados: <b id="cntProductos">0</b></div>
     </div>
 
@@ -491,18 +220,12 @@
       <div class="checks">
         <label class="chk-row">
           <input type="checkbox" id="chkPrime" checked />
-          <div class="chk-text">
-            🛡 Solo Prime
-            <div class="chk-sub">Envío rápido garantizado</div>
-          </div>
+          <div class="chk-text">🛡 Solo Prime<div class="chk-sub">Envío rápido garantizado</div></div>
           <span class="chk-badge b-prime">Prime</span>
         </label>
         <label class="chk-row">
           <input type="checkbox" id="chkStars" checked />
-          <div class="chk-text">
-            ⭐ 4 estrellas o más
-            <div class="chk-sub">Calificación mínima</div>
-          </div>
+          <div class="chk-text">⭐ 4 estrellas o más<div class="chk-sub">Calificación mínima</div></div>
           <span class="chk-badge b-star">★★★★</span>
         </label>
       </div>
@@ -513,10 +236,15 @@
       <span id="transLabel">Traducción automática lista</span>
     </div>
 
+    <!-- Aviso CORS (solo visible si falla) -->
+    <div class="cors-warn" id="corsWarn">
+      <b>⚠️ Error de traducción (CORS)</b>
+      Este HTML está corriendo desde un servidor externo. La API de Claude solo funciona desde claude.ai. Se usarán los nombres originales sin traducir.
+    </div>
+
     <button class="btn-start" id="btnStart" onclick="iniciarBusqueda()">🚀 Generar Links</button>
   </aside>
 
-  <!-- ── PANEL DERECHO ── -->
   <section class="right">
     <div class="status-bar">
       <div class="s-dot" id="sDot"></div>
@@ -524,29 +252,15 @@
         <div class="s-label" id="sLabel">Esperando productos…</div>
         <div class="s-sub" id="sSub">Ingresa productos y presiona Generar Links</div>
       </div>
-      <div class="prog-track">
-        <div class="prog-fill" id="progFill"></div>
-      </div>
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
       <div class="prog-pct" id="progPct">0%</div>
     </div>
 
     <div class="stats-row">
-      <div class="stat s-total">
-        <div class="ico">🛒</div>
-        <div><div class="num" id="stTotal">0</div><div class="lbl-s">Total</div></div>
-      </div>
-      <div class="stat s-ok">
-        <div class="ico">✅</div>
-        <div><div class="num" id="stOk">0</div><div class="lbl-s">Prime+★★★★</div></div>
-      </div>
-      <div class="stat s-warn">
-        <div class="ico">⚠️</div>
-        <div><div class="num" id="stWarn">0</div><div class="lbl-s">Parcial</div></div>
-      </div>
-      <div class="stat s-err">
-        <div class="ico">🔗</div>
-        <div><div class="num" id="stErr">0</div><div class="lbl-s">Sin filtros</div></div>
-      </div>
+      <div class="stat s-total"><div class="ico">🛒</div><div><div class="num" id="stTotal">0</div><div class="lbl-s">Total</div></div></div>
+      <div class="stat s-ok"><div class="ico">✅</div><div><div class="num" id="stOk">0</div><div class="lbl-s">Prime+★★★★</div></div></div>
+      <div class="stat s-warn"><div class="ico">⚠️</div><div><div class="num" id="stWarn">0</div><div class="lbl-s">Parcial</div></div></div>
+      <div class="stat s-err"><div class="ico">🔗</div><div><div class="num" id="stErr">0</div><div class="lbl-s">Sin filtros</div></div></div>
     </div>
 
     <div class="actions-row">
@@ -563,26 +277,19 @@
       <table id="rTable" style="display:none">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Producto Original</th>
-            <th>Término en Inglés</th>
-            <th>URL Amazon</th>
-            <th>Filtros</th>
-            <th>Traducido</th>
+            <th>#</th><th>Producto Original</th><th>Término en Inglés</th>
+            <th>URL Amazon</th><th>Filtros</th><th>Traducido</th>
           </tr>
         </thead>
         <tbody id="rBody"></tbody>
       </table>
     </div>
 
-    <div class="log-strip" id="logStrip">
-      <span>— Listo para iniciar —</span>
-    </div>
+    <div class="log-strip" id="logStrip"><span>— Listo para iniciar —</span></div>
   </section>
 </main>
 
 <script>
-  // ── Datos Amazon ──
   const PRIME_NODE = {
     'com':'p_85:2470955011','com.mx':'p_85:2693027011','es':'p_85:831817031',
     'com.br':'p_85:17878830011','co.uk':'p_85:531109031','de':'p_85:419117031',
@@ -596,13 +303,11 @@
 
   let resultados = [];
 
-  // ── Contador ──
   document.getElementById('txtProductos').addEventListener('input', function () {
     const n = this.value.split('\n').filter(l => l.trim()).length;
     document.getElementById('cntProductos').textContent = n;
   });
 
-  // ── Excel upload ──
   const zone = document.getElementById('uploadZone');
   document.getElementById('fileInput').addEventListener('change', function () {
     if (this.files[0]) cargarExcel(this.files[0]);
@@ -641,14 +346,14 @@
     reader.readAsBinaryString(file);
   }
 
-  // ── Detectar si texto es español ──
   function esEspanol(texto) {
     const palabrasEs = /\b(de|la|el|en|con|para|por|una|del|los|las|un|es|su|mi|se|que|y|o|a|al)\b/i;
     const acentos = /[áéíóúñü]/i;
     return palabrasEs.test(texto) || acentos.test(texto);
   }
 
-  // ── Traducir batch con Claude API ──
+  // ── Traducir usando la API de Anthropic ──
+  // NOTA: Solo funciona cuando se ejecuta en claude.ai (el Artifact maneja el proxy)
   async function traducirProductos(productos) {
     const necesitanTrad = productos.map(p => esEspanol(p));
     const aTraducir = productos.filter((_, i) => necesitanTrad[i]);
@@ -660,7 +365,7 @@
     setTransStatus('active', `Traduciendo ${aTraducir.length} producto(s)…`);
 
     try {
-      const prompt = `You are a product search term translator. Translate the following product names from Spanish to English for Amazon product search. Return ONLY a JSON array of strings with the English translations in the same order. Do not add explanation, markdown, or backticks. Example output: ["ergonomic chair","adjustable desk"]\n\nProducts:\n${JSON.stringify(aTraducir)}`;
+      const prompt = `Translate the following product names from Spanish to English for Amazon search. Return ONLY a JSON array of strings in the same order. No markdown, no explanation.\n\nProducts: ${JSON.stringify(aTraducir)}`;
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -672,12 +377,13 @@
         })
       });
 
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
       const data = await response.json();
       const rawText = data.content?.find(b => b.type === 'text')?.text || '[]';
       const clean = rawText.replace(/```json|```/g, '').trim();
       const traducidas = JSON.parse(clean);
 
-      // Reconstruir lista completa
       let tIdx = 0;
       return productos.map((p, i) => {
         if (necesitanTrad[i]) {
@@ -690,12 +396,16 @@
 
     } catch (err) {
       console.error('Error traducción:', err);
-      setLog('⚠️ Traducción automática falló, usando original', 'warn');
+      // Mostrar aviso CORS si el error es de red/fetch
+      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError') || err.message.includes('CORS')) {
+        document.getElementById('corsWarn').style.display = 'block';
+      }
+      setLog('⚠️ Traducción falló — usando nombres originales', 'warn');
+      setTransStatus('idle', '⚠️ Traducción no disponible (CORS)');
       return productos.map(p => ({ original: p, en: p, traducido: false }));
     }
   }
 
-  // ── Construir URL Amazon ──
   function construirURL(termino, region, prime, stars) {
     const base = `https://www.amazon.${region}/s`;
     const params = new URLSearchParams({ k: termino, s: 'relevanceblender' });
@@ -713,7 +423,6 @@
     return                    { estado:'sin_filtros', cls:'b-err', lbl:'SIN FILTROS' };
   }
 
-  // ── INICIO ──
   async function iniciarBusqueda() {
     const txt = document.getElementById('txtProductos').value;
     const lista = txt.split('\n').map(l => l.trim()).filter(Boolean);
@@ -730,16 +439,14 @@
     document.getElementById('btnExport').disabled = true;
     document.getElementById('btnStart').disabled = true;
     document.getElementById('timerInfo').textContent = '';
+    document.getElementById('corsWarn').style.display = 'none';
     setStatus('running', 'Traduciendo y generando links…', `${lista.length} productos`);
     setLog(`🚀 Procesando ${lista.length} productos para amazon.${region}`, 'ok');
 
     const t0 = Date.now();
-
-    // Paso 1: Traducir
     const items = await traducirProductos(lista);
     setTransStatus('done', `${items.filter(i=>i.traducido).length} traducidos al inglés`);
 
-    // Paso 2: Generar links
     const info = infoFiltros(prime, stars);
     const now  = new Date().toLocaleDateString('es', { day:'2-digit', month:'2-digit', year:'numeric' }) +
                  ' ' + new Date().toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' });
@@ -750,7 +457,6 @@
       const r = { ...item, url, estado: info.estado, cls: info.cls, lbl: info.lbl, fecha: now };
       resultados.push(r);
       agregarFila(r, i + 1);
-
       const pct = Math.round(((i + 1) / items.length) * 100);
       document.getElementById('progFill').style.width = pct + '%';
       document.getElementById('progPct').textContent  = pct + '%';
@@ -760,7 +466,6 @@
     actualizarStats();
     document.getElementById('btnExport').disabled = false;
     document.getElementById('btnStart').disabled  = false;
-
     const elapsed = ((Date.now() - t0) / 1000).toFixed(2);
     document.getElementById('timerInfo').textContent = `⏱ ${elapsed}s`;
     setStatus('done', `✅ ${resultados.length} links generados`, `amazon.${region} · ${elapsed}s`);
@@ -819,13 +524,13 @@
     document.getElementById('progFill').style.width = '0%';
     document.getElementById('progPct').textContent = '0%';
     document.getElementById('timerInfo').textContent = '';
+    document.getElementById('corsWarn').style.display = 'none';
     ['stTotal','stOk','stWarn','stErr'].forEach(id => document.getElementById(id).textContent = '0');
     setStatus('idle', 'Esperando productos…', 'Ingresa productos y presiona Generar Links');
     setLog('— Listo para iniciar —', '');
     setTransStatus('idle', 'Traducción automática lista');
   }
 
-  // ── Helpers UI ──
   function setStatus(type, label, sub) {
     const dot = document.getElementById('sDot');
     dot.className = 's-dot ' + (type === 'idle' ? '' : type);
