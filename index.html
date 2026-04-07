@@ -929,11 +929,7 @@
             <div class="section-title">Lista de productos</div>
           </div>
 
-          <textarea id="txtProductos" placeholder="Escribe un producto por línea, por ejemplo:
-Silla ergonómica para oficina
-Escritorio de altura ajustable
-Monitor 4K 27 pulgadas
-Teclado mecánico inalámbrico"></textarea>
+          <textarea id="txtProductos" placeholder=""></textarea>
 
           <div class="counter">Productos detectados: <b id="cntProductos">0</b></div>
         </div>
@@ -993,17 +989,6 @@ Teclado mecánico inalámbrico"></textarea>
             <label for="selAmazon">Amazon destino</label>
             <select id="selAmazon">
               <option value="com">amazon.com (US)</option>
-              <option value="com.mx">amazon.com.mx (MX)</option>
-              <option value="es">amazon.es (ES)</option>
-              <option value="com.br">amazon.com.br (BR)</option>
-              <option value="co.uk">amazon.co.uk (UK)</option>
-              <option value="de">amazon.de (DE)</option>
-              <option value="fr">amazon.fr (FR)</option>
-              <option value="it">amazon.it (IT)</option>
-              <option value="ca">amazon.ca (CA)</option>
-              <option value="com.au">amazon.com.au (AU)</option>
-              <option value="co.jp">amazon.co.jp (JP)</option>
-              <option value="in">amazon.in (IN)</option>
             </select>
           </div>
         </div>
@@ -1164,32 +1149,10 @@ Teclado mecánico inalámbrico"></textarea>
   <script>
     const AMAZON_PRIME_NODE = {
       'com': 'p_85:2470955011',
-      'com.mx': 'p_85:2693027011',
-      'es': 'p_85:831817031',
-      'com.br': 'p_85:17878830011',
-      'co.uk': 'p_85:531109031',
-      'de': 'p_85:419117031',
-      'fr': 'p_85:677798031',
-      'it': 'p_85:599367031',
-      'ca': 'p_85:13742691011',
-      'com.au': 'p_85:48631609031',
-      'co.jp': 'p_85:2114981051',
-      'in': 'p_85:1571274031',
     };
 
     const AMAZON_STARS_NODE = {
       'com': 'p_72:1248879011',
-      'com.mx': 'p_72:1241989011',
-      'es': 'p_72:831817031',
-      'com.br': 'p_72:5312720011',
-      'co.uk': 'p_72:1066443031',
-      'de': 'p_72:663823031',
-      'fr': 'p_72:677799031',
-      'it': 'p_72:524136031',
-      'ca': 'p_72:13727921011',
-      'com.au': 'p_72:48631610031',
-      'co.jp': 'p_72:2111901051',
-      'in': 'p_72:1318405031',
     };
 
     let resultados = [];
@@ -1478,12 +1441,8 @@ Teclado mecánico inalámbrico"></textarea>
       const sinFiltros = resultados.filter(r => r.estado === 'sin_filtros').length;
 
       const datos = resultados.map((r, i) => ({
-        '#': i + 1,
         'Producto Buscado': r.producto_buscado,
         'URL Amazon': r.url_resultado,
-        'Estado': r.badgeLabel,
-        'Observación': r.observacion,
-        'Fecha': r.fecha_consulta
       }));
 
       const wb = XLSX.utils.book_new();
