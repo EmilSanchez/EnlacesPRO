@@ -501,10 +501,7 @@
     const datos = resultados.map((r, i) => ({
       '#': i + 1,
       'Producto Original': r.original,
-      'Término en Inglés': r.en,
-      'Traducido (ES→EN)': r.traducido ? 'Sí' : 'No',
       'URL Amazon': r.url,
-      'Filtros': r.lbl,
     }));
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(datos);
